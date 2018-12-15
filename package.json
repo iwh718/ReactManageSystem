@@ -1,0 +1,46 @@
+{
+  "name": "ac",
+  "version": "1.0.0",
+  "description": "AC后端",
+  "main": "index.js",
+  "watch": {
+    "run_babel": {
+      "patterns": [
+        "app"
+      ],
+      "extensions": "js",
+      "quiet": false
+    },
+    "run_browserify": {
+      "patterns": [
+        "app"
+      ],
+      "extensions": "js",
+      "quiet": false
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run_babel": "watch \"babel web/js/components/es6  -d web/js/components/es5\" web/js/components/es6 ",
+    "run_browserify": "watch \"browserify web/js/components/es5/app.js -o web/bundle.js\" web/js/components/es5/"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "react"
+    ]
+  },
+  "author": "iwh",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "jquery": "^3.3.1",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "watch": "^1.0.2"
+  },
+  "dependencies": {
+    "save-dev": "^2.0.0"
+  }
+}
