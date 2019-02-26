@@ -32,25 +32,60 @@ var AC = function (_React$Component) {
     function AC(props) {
         _classCallCheck(this, AC);
 
-        var _this = _possibleConstructorReturn(this, (AC.__proto__ || Object.getPrototypeOf(AC)).call(this, props));
+        var _this2 = _possibleConstructorReturn(this, (AC.__proto__ || Object.getPrototypeOf(AC)).call(this, props));
 
-        _this.state = {
+        _this2.state = {
+            admin_name: '', //用户名
             //活动控制私有方法
             _activityC: {
                 _temId: '', //临时id
                 _alertFlag: false, //警告提示窗
                 _addFlag: false, //添加活动modal
+
                 _edit: function _edit() {
                     console.log('你点了编辑');
                 },
                 _delete: function _delete() {
-                    console.log('确认删除！');
-                    console.log('temId:' + _this.state._activityC._temId);
+                    var _this = _this2;
+                    //console.log('确认删除！');
+                    // console.log('temId:' + this.state._activityC._temId);
+                    _jquery2.default.post('receiveData/receiveData.php', {
+                        Id: _this2.state._activityC._temId,
+                        addDataKey: "removeActivity"
+                    }, function (data) {
+                        // console.log(`移除：${data}`);
+                        if (data != 1) {
+                            //   console.log(`移除失败:${data}`);
+                            var tp = _this.state.tipsBox;
+                            tp.flag = true;
+                            tp.text = '删除失败！';
+                            var fg = _this2.state._activityC;
+                            fg._alertFlag = false;
+
+                            _this2.setState({
+                                tipsBox: tp,
+                                _activityC: fg
+                            });
+                        } else {
+                            var _tp = _this.state.tipsBox;
+                            _tp.flag = true;
+                            var _fg = _this2.state._activityC;
+                            _fg._alertFlag = false;
+
+                            _tp.text = '删除成功！';
+                            _this2._initShopActivity();
+                            _this2.setState({
+                                tipsBox: _tp,
+                                _activityC: _fg
+                            });
+                        }
+                    });
                 },
                 //添加活动
                 _add: function _add() {
                     var addData = (0, _jquery2.default)("#form_add").serializeArray();
                     var tem = [];
+                    var logo = '';
                     var _iteratorNormalCompletion = true;
                     var _didIteratorError = false;
                     var _iteratorError = undefined;
@@ -76,43 +111,19 @@ var AC = function (_React$Component) {
                         }
                     }
 
-                    if (_this.state._activityC._check(addData)) {
-                        _jquery2.default.post('receiveData/receiveData.php', {
-                            addDataKey: 'addActivity',
-                            title: tem[0],
-                            acttime: tem[1],
-                            shopname: tem[2],
-                            actdesc: tem[3],
-                            url: tem[4]
-
-                        }, function (data, text) {
-                            console.log(data);
-                        });
-                        console.log(addData);
-                        var fg = _this.state._activityC;
-                        var bg = _this.state.tipsBox;
-                        bg.flag = true;
-                        bg.text = '添加完成';
-                        fg._addFlag = false;
-                        _this.setState({
-                            _activity: fg,
-                            tipsBox: bg
-                        });
-                    } else {
-                        console.log('数据有误');
-                    }
-                },
-                _check: function _check(e) {
+                    var sp = _this2.state.ShopList;
                     var _iteratorNormalCompletion2 = true;
                     var _didIteratorError2 = false;
                     var _iteratorError2 = undefined;
 
                     try {
-                        for (var _iterator2 = e[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                            var i = _step2.value;
+                        for (var _iterator2 = sp[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                            var _i = _step2.value;
 
-                            if (i['value'].length <= 0 || i === '') {
-                                return false;
+                            if (_i.name === tem[3]) {
+                                console.log(_i.name);
+                                console.log(_i.logo);
+                                logo = _i.logo;
                             }
                         }
                     } catch (err) {
@@ -130,7 +141,300 @@ var AC = function (_React$Component) {
                         }
                     }
 
+                    if (_this2.state._activityC._check(addData)) {
+                        var fd = new FormData();
+                        var _this = _this2;
+
+                        console.log('shoplist' + sp);
+
+                        fd.append("title", tem[1]);
+                        fd.append("addDataKey", 'addActivity');
+                        fd.append("url", tem[5]);
+                        fd.append("acttime", tem[2]);
+                        fd.append("actdesc", tem[4]);
+                        fd.append("shopname", tem[3]);
+                        fd.append('logo', logo); //商家logo
+                        fd.append("actsort", tem[0]);
+                        fd.append("banner", (0, _jquery2.default)('#banner')[0].files[0]);
+                        _jquery2.default.ajax({
+                            url: 'receiveData/receiveData.php',
+                            type: 'post',
+                            processData: false,
+                            contentType: false,
+                            data: fd,
+                            success: function success(data) {
+                                if (data != 1) {
+                                    console.log('\u53D1\u5E03\u5931\u8D25:' + data);
+                                    var tp = _this.state.tipsBox;
+                                    tp.text = '发布失败';
+                                    tp.flag = true;
+                                    _this.setState({
+                                        tipsBox: tp
+                                    });
+                                } else {
+                                    // console.log('上传完成');
+                                    var _tp2 = _this.state.tipsBox;
+                                    var fg = _this.state._activityC;
+                                    fg._addFlag = false;
+                                    _tp2.text = '发布完成';
+                                    _tp2.flag = true;
+                                    _this.setState({
+                                        tipsBox: _tp2,
+                                        _activityC: fg
+
+                                    }, function () {
+                                        _this._initShopActivity();
+                                    });
+                                }
+                            }
+                        });
+                    } else {
+                        // console.log('数据有误');
+                    }
+                },
+                _check: function _check(e) {
+                    var _iteratorNormalCompletion3 = true;
+                    var _didIteratorError3 = false;
+                    var _iteratorError3 = undefined;
+
+                    try {
+                        for (var _iterator3 = e[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                            var i = _step3.value;
+
+                            if (i['value'].length <= 0 || i === '') {
+                                return false;
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError3 = true;
+                        _iteratorError3 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                _iterator3.return();
+                            }
+                        } finally {
+                            if (_didIteratorError3) {
+                                throw _iteratorError3;
+                            }
+                        }
+                    }
+
                     return true;
+                }
+            },
+            //商户控制私有方法
+            _shopC: {
+                _add: function _add() {
+                    var fg = _this2.state._shopC;
+                    fg._addModalFlag = true;
+
+                    _this2.setState({
+                        _shopC: fg
+                    });
+                },
+                //提交请求
+                _submit: function _submit() {
+                    var addData = (0, _jquery2.default)("#form_add_shop").serializeArray();
+                    var tem = [];
+                    var _iteratorNormalCompletion4 = true;
+                    var _didIteratorError4 = false;
+                    var _iteratorError4 = undefined;
+
+                    try {
+                        for (var _iterator4 = addData[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                            var i = _step4.value;
+
+                            tem.push(i.value);
+                        }
+                    } catch (err) {
+                        _didIteratorError4 = true;
+                        _iteratorError4 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                _iterator4.return();
+                            }
+                        } finally {
+                            if (_didIteratorError4) {
+                                throw _iteratorError4;
+                            }
+                        }
+                    }
+
+                    if (_this2.state._activityC._check(addData)) {
+                        var _this = _this2;
+                        var fd = new FormData();
+                        fd.append("addDataKey", "addShopList");
+                        fd.append("name", tem[0]);
+                        fd.append("phone", tem[1]);
+                        fd.append("address", tem[2]);
+                        fd.append("desc", tem[3]);
+                        fd.append("logo", (0, _jquery2.default)('#shop-logo')[0].files[0]);
+                        _jquery2.default.ajax({
+                            url: 'receiveData/receiveData.php',
+                            type: 'post',
+                            processData: false,
+                            contentType: false,
+                            data: fd,
+                            success: function success(data) {
+                                if (data != 1) {
+                                    // console.log(`添加失败:${data}`);
+                                    var tp = _this.state.tipsBox;
+                                    var adm = _this.state._shopC;
+                                    adm._addModalFlag = false;
+                                    tp.text = '添加商户失败';
+                                    tp.flag = true;
+                                    _this.setState({
+                                        tipsBox: tp,
+                                        _shopC: adm
+                                    });
+                                } else {
+                                    //console.log('添加商户完成');
+                                    var _adm = _this.state._shopC;
+                                    _adm._addModalFlag = false;
+                                    var _tp3 = _this.state.tipsBox;
+                                    _tp3.text = '添加商户完成';
+                                    _tp3.flag = true;
+                                    _this.setState({
+                                        tipsBox: _tp3,
+                                        _shopC: _adm
+
+                                    }, function () {
+                                        _this._initShopList();
+                                    });
+                                }
+                            }
+                        });
+                    } else {
+                        //  console.log('商户数据有误！');
+                    }
+                },
+                _remove: function _remove() {
+                    var _this = _this2;
+                    _jquery2.default.post('receiveData/receiveData.php', {
+                        id: _this2.state._shopC._temId,
+                        addDataKey: "removeShopList"
+                    }, function (data) {
+                        if (data != 1) {
+                            // console.log(`移除失败:${data}`);
+                            var tp = _this.state.tipsBox;
+                            tp.flag = true;
+                            tp.text = '删除失败！';
+                            var fg = _this2.state._shopC;
+                            fg._alertFlag = false;
+
+                            _this2.setState({
+                                tipsBox: tp,
+                                _shopC: fg
+                            });
+                        } else {
+                            var _tp4 = _this.state.tipsBox;
+                            _tp4.flag = true;
+                            var _fg2 = _this2.state._shopC;
+                            _fg2._alertFlag = false;
+
+                            _tp4.text = '删除成功！';
+                            // this._initShopActivity();
+                            _this2.setState({
+                                tipsBox: _tp4,
+                                _shopC: _fg2
+                            });
+                        }
+                    });
+                },
+                _alertFlag: false,
+                _temId: '',
+                _addModalFlag: false //添加modal
+            },
+
+            //公告控制私有方法
+            _acC: {
+                _add: function _add() {
+                    var fg = _this2.state._acC;
+                    fg._addAcModalFlag = true;
+                    _this2.setState({
+                        _acC: fg
+                    });
+                },
+                _addAcModalFlag: false,
+                _remove: function _remove(id) {
+                    _jquery2.default.post('receiveData/receiveData.php', {
+                        addDataKey: "removeAcActivity",
+                        id: id
+                    }, function (data) {
+                        if (data == 1) {
+                            var tp = _this2.state.tipsBox;
+                            tp.flag = true;
+                            tp.text = "删除完成";
+                            _this2.setState({
+                                tipsBox: tp
+                            }, function () {});
+                        } else {
+                            //console.log(`删除公告：${data}`);
+                            var _tp5 = _this2.state.tipsBox;
+                            _tp5.flag = true;
+                            _tp5.text = "删除失败";
+                            _this2.setState({
+                                tipsBox: _tp5
+                            });
+                        }
+                    });
+                },
+
+                _submit: function _submit() {
+                    var _this = _this2;
+                    var addData = (0, _jquery2.default)('#form_add_ac').serializeArray();
+                    var tem = [];
+                    var _iteratorNormalCompletion5 = true;
+                    var _didIteratorError5 = false;
+                    var _iteratorError5 = undefined;
+
+                    try {
+                        for (var _iterator5 = addData[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+                            var i = _step5.value;
+
+                            tem.push(i.value);
+                        }
+                    } catch (err) {
+                        _didIteratorError5 = true;
+                        _iteratorError5 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                                _iterator5.return();
+                            }
+                        } finally {
+                            if (_didIteratorError5) {
+                                throw _iteratorError5;
+                            }
+                        }
+                    }
+
+                    if (_this2.state._activityC._check(addData)) {
+                        _jquery2.default.post('receiveData/receiveData.php', {
+                            addDataKey: "addAcActivity",
+                            title: tem[0],
+                            url: tem[1]
+                        }, function (data) {
+                            // console.log(`添加公告:${data}`);
+                            if (data == '1') {
+                                var fg = _this.state._acC;
+                                fg._addAcModalFlag = false;
+                                var tp = _this.state.tipsBox;
+                                tp.text = '添加完成';
+                                tp.flag = true;
+                                _this2.setState({
+                                    tipsBox: tp,
+                                    _acC: fg
+                                }, function () {
+                                    _this._initAcActivity();
+                                });
+                            }
+                        });
+                    } else {
+                        // console.log('添加公告失败，数据有误');
+                    }
                 }
             },
             //全局提示
@@ -138,11 +442,15 @@ var AC = function (_React$Component) {
                 flag: false,
                 text: ''
             },
+            //全局加载组件
+            loadBox: {
+                flag: true
+            },
             //tabs初始化数据
             ShopActivities: '',
             AcActivity: '',
             IndexActivity: '',
-            ShopList: '',
+            ShopList: [{}, {}],
             UserList: '',
             addModalFlag: false, //默认添加活动modal
             //render标志
@@ -155,23 +463,167 @@ var AC = function (_React$Component) {
             }
 
         };
-        _this._initShopActivity(); //获取活动数据
-        _this._initAcActivity(); //获取平台活动
-        _this._initIndexActivity(); //获取推荐活动
-        _this._initShopList(); //获取商户列表
-        _this._initUserList(); //获取用户列表
 
+        var _init0 = function _init0() {
+            _this2._initShopActivity();
+            return _init1();
+        };
+        var _init1 = function _init1() {
+            console.log('商家列表开始获取');
+            _this2._initShopList();
 
-        return _this;
+            return _init2();
+        };
+        var _init2 = function _init2() {
+            console.log('开始获取推荐活动');
+            _this2._initIndexActivity(); //获取推荐活动
+            return _init3();
+        };
+        var _init3 = function _init3() {
+            console.log('开始获取用户列表');
+            _this2._initUserList(); //获取用户列表
+            return _init4();
+        };
+        var _init4 = function _init4() {
+            console.log('公告获取开始');
+            _this2._initAcActivity(); //获取平台活动
+            return _initName;
+        };
+        var _initName = new Promise(function () {
+            console.log('获取登录名');
+            _this2._getName(); //获取登录名
+        });
+        _init0().catch(function (e) {
+            console.log('\u53D1\u751F\u9519\u8BEF\uFF1A' + e);
+        }); //初始化应用数据
+
+        return _this2;
     }
-
-    //渲染活动tab
+    //初始化商家列表
 
 
     _createClass(AC, [{
+        key: '_initShopList',
+        value: function _initShopList() {
+            var _this3 = this;
+
+            //console.log('获取商户列表');
+            _jquery2.default.post('returnData/returnData.php', {
+                getDataKey: 'getShopList'
+            }, function (data) {
+                console.log('shop:' + JSON.parse(data).toString());
+
+                _this3.setState({
+                    ShopList: JSON.parse(data)
+
+                });
+            });
+        }
+
+        //初始化用户列表
+
+    }, {
+        key: '_initUserList',
+        value: function _initUserList() {}
+        //  console.log('获取用户列表')
+
+
+        //初始化推荐活动
+
+    }, {
+        key: '_initIndexActivity',
+        value: function _initIndexActivity() {}
+        //  console.log('获取推荐活动');
+
+
+        //初始化平台活动
+
+    }, {
+        key: '_initAcActivity',
+        value: function _initAcActivity() {
+            var _this4 = this;
+
+            // console.log('获取AC公告');
+            _jquery2.default.post('returnData/returnData.php', {
+                getDataKey: 'getAcActivity'
+            }, function (data, text) {
+                //console.log('ac:'+JSON.parse(data));
+
+                data = JSON.parse(data);
+                var load = _this4.state.loadBox;
+                load.flag = false;
+                _this4.setState({
+                    AcActivity: data,
+                    loadBox: load
+
+                }, function () {
+                    console.log('初始化完成');
+                });
+            });
+        }
+
+        //初始化商家活动数据
+
+    }, {
+        key: '_initShopActivity',
+        value: function _initShopActivity() {
+            var _this5 = this;
+
+            _jquery2.default.post('returnData/returnData.php', {
+                getDataKey: 'getShopActivity'
+            }, function (data, text) {
+                if (data === 'error') {
+                    console.warn('发生错误：', text);
+                } else {
+                    data = JSON.parse(data);
+                    // console.log(data)
+                }
+                var fg = _this5.state.renderFlag;
+                fg.ActivityFlag = true;
+                _this5.setState({
+                    ShopActivities: data
+
+                });
+            });
+        }
+
+        //获取用户名
+
+    }, {
+        key: '_getName',
+        value: function _getName() {
+            var _this6 = this;
+
+            _jquery2.default.post('returnData/returnData.php', {
+                "getDataKey": "getCookie"
+            }, function (data) {
+                // console.log(`name:${data}`);
+                _this6.setState({
+                    admin_name: data + '（当前在线）'
+                });
+            });
+        }
+        //退出登录
+
+    }, {
+        key: '_outSign',
+        value: function _outSign() {
+            _jquery2.default.post('receiveData/receiveData.php', {
+                addDataKey: "outSign"
+            }, function (data) {
+                if (data == "ok") {
+                    location.href = './ac_home.html';
+                } else {
+                    alert('发生错误');
+                }
+            });
+        }
+        //渲染活动tab
+
+    }, {
         key: '_renderActivity',
         value: function _renderActivity() {
-            var _this2 = this;
+            var _this7 = this;
 
             return _react2.default.createElement(
                 'div',
@@ -186,9 +638,9 @@ var AC = function (_React$Component) {
                             'button',
                             { className: 'btn btn-success', id: 'addActivityBtn',
                                 onClick: function onClick() {
-                                    var fg = _this2.state._activityC;
+                                    var fg = _this7.state._activityC;
                                     fg._addFlag = true;
-                                    _this2.setState({
+                                    _this7.setState({
                                         _activity: fg
                                     });
                                 } },
@@ -272,6 +724,8 @@ var AC = function (_React$Component) {
                                             _react2.default.createElement(
                                                 'td',
                                                 null,
+                                                _react2.default.createElement('img', { src: row['shoplogo'], className: 'shop-logo' }),
+                                                ' ',
                                                 row['shopId']
                                             ),
                                             _react2.default.createElement(
@@ -287,12 +741,16 @@ var AC = function (_React$Component) {
                                             _react2.default.createElement(
                                                 'td',
                                                 null,
-                                                row['url']
+                                                _react2.default.createElement(
+                                                    'a',
+                                                    { href: row['url'], target: '_blank' },
+                                                    '\u6D3B\u52A8\u94FE\u63A5'
+                                                )
                                             ),
                                             _react2.default.createElement(
                                                 'td',
                                                 null,
-                                                row['banner']
+                                                _react2.default.createElement('img', { src: row['banner'], className: 'banner' })
                                             ),
                                             _react2.default.createElement(
                                                 'td',
@@ -303,10 +761,10 @@ var AC = function (_React$Component) {
                                                     _react2.default.createElement(
                                                         'button',
                                                         { className: 'btn btn-danger', onClick: function onClick() {
-                                                                var ac = _this2.state._activityC;
+                                                                var ac = _this7.state._activityC;
                                                                 ac._alertFlag = true;
-                                                                ac._temId = idx;
-                                                                _this2.setState({
+                                                                ac._temId = row['Id'];
+                                                                _this7.setState({
                                                                     _activityFlag: ac
 
                                                                 });
@@ -317,7 +775,7 @@ var AC = function (_React$Component) {
                                                         'button',
                                                         { className: 'btn btn-success',
                                                             onClick: function onClick() {
-                                                                return _this2.state._activityC._edit();
+                                                                return _this7.state._activityC._edit();
                                                             } },
                                                         '\u7F16\u8F91'
                                                     )
@@ -338,6 +796,8 @@ var AC = function (_React$Component) {
     }, {
         key: '_renderShopList',
         value: function _renderShopList() {
+            var _this8 = this;
+
             return _react2.default.createElement(
                 'div',
                 { className: 'tab-pane fade in active', id: 'tabs2' },
@@ -349,7 +809,9 @@ var AC = function (_React$Component) {
                         { className: 'panel-heading' },
                         _react2.default.createElement(
                             'button',
-                            { className: 'btn btn-success', id: 'addShopBtn' },
+                            { className: 'btn btn-success', id: 'addShopBtn', onClick: function onClick() {
+                                    return _this8.state._shopC._add();
+                                } },
                             '\u6DFB\u52A0\u5546\u6237'
                         )
                     ),
@@ -435,7 +897,7 @@ var AC = function (_React$Component) {
                                             _react2.default.createElement(
                                                 'td',
                                                 null,
-                                                row['logo']
+                                                _react2.default.createElement('img', { src: row['logo'], className: 'shop-logo' })
                                             ),
                                             _react2.default.createElement(
                                                 'td',
@@ -447,7 +909,14 @@ var AC = function (_React$Component) {
                                                 null,
                                                 _react2.default.createElement(
                                                     'button',
-                                                    { className: 'btn btn-danger' },
+                                                    { className: 'btn btn-danger', onClick: function onClick() {
+                                                            var sp = _this8.state._shopC;
+                                                            sp._alertFlag = true;
+                                                            sp._temId = row['Id'];
+                                                            _this8.setState({
+                                                                _shopC: sp
+                                                            });
+                                                        } },
                                                     '\u5220\u9664'
                                                 )
                                             )
@@ -490,6 +959,8 @@ var AC = function (_React$Component) {
     }, {
         key: '_renderAcActivity',
         value: function _renderAcActivity() {
+            var _this9 = this;
+
             return _react2.default.createElement(
                 'div',
                 { className: 'tab-pane fade in active', id: 'tabs5' },
@@ -501,7 +972,7 @@ var AC = function (_React$Component) {
                         { className: 'panel-heading' },
                         _react2.default.createElement(
                             'button',
-                            { className: 'btn btn-success', id: 'addShopBtn' },
+                            { className: 'btn btn-success', id: 'addShopBtn', onClick: this.state._acC._add.bind(this) },
                             '\u6DFB\u52A0\u65B0\u516C\u544A'
                         )
                     ),
@@ -562,7 +1033,7 @@ var AC = function (_React$Component) {
                                             _react2.default.createElement(
                                                 'td',
                                                 null,
-                                                row['datetime']
+                                                row['datetimes']
                                             ),
                                             _react2.default.createElement(
                                                 'td',
@@ -574,7 +1045,9 @@ var AC = function (_React$Component) {
                                                 null,
                                                 _react2.default.createElement(
                                                     'button',
-                                                    { className: 'btn btn-danger' },
+                                                    { className: 'btn btn-danger', onClick: function onClick() {
+                                                            _this9.state._acC._remove(row['Id']);
+                                                        } },
                                                     '\u5220\u9664'
                                                 )
                                             )
@@ -592,11 +1065,11 @@ var AC = function (_React$Component) {
     }, {
         key: '_renderNav',
         value: function _renderNav() {
-            var _this3 = this;
+            var _this10 = this;
 
             return _react2.default.createElement(
                 'nav',
-                { className: 'navbar   navbar-default ', title: 'bore.iwh1998' },
+                { className: 'navbar navbar-inverse   ', title: 'bore.iwh1998' },
                 _react2.default.createElement(
                     'div',
                     { className: 'navbar-header' },
@@ -626,7 +1099,7 @@ var AC = function (_React$Component) {
                                 'a',
                                 { href: '#tabs1', 'data-toggle': 'tab', id: 'sendActivity', onClick: function onClick() {
 
-                                        _this3.setState({
+                                        _this10.setState({
                                             renderFlag: {
                                                 'ActivityFlag': true,
                                                 'ShopListFlag': false,
@@ -647,7 +1120,7 @@ var AC = function (_React$Component) {
                                 'a',
                                 { href: '#tabs2', 'data-toggle': 'tab', id: 'shopManage', onClick: function onClick() {
 
-                                        _this3.setState({
+                                        _this10.setState({
                                             renderFlag: {
                                                 'ActivityFlag': false,
                                                 'ShopListFlag': true,
@@ -668,7 +1141,7 @@ var AC = function (_React$Component) {
                                 'a',
                                 { href: '#tabs3', 'data-toggle': 'tab', id: 'selectActivity', onClick: function onClick() {
 
-                                        _this3.setState({
+                                        _this10.setState({
                                             renderFlag: {
                                                 'ActivityFlag': false,
                                                 'ShopListFlag': false,
@@ -689,7 +1162,7 @@ var AC = function (_React$Component) {
                                 'a',
                                 { href: '#tabs4', 'data-toggle': 'tab', id: 'userManage', onClick: function onClick() {
 
-                                        _this3.setState({
+                                        _this10.setState({
                                             renderFlag: {
                                                 'ActivityFlag': false,
                                                 'ShopListFlag': false,
@@ -710,7 +1183,7 @@ var AC = function (_React$Component) {
                                 'a',
                                 { href: '#tabs5', 'data-toggle': 'tab', id: 'activityManage', onClick: function onClick() {
 
-                                        _this3.setState({
+                                        _this10.setState({
                                             renderFlag: {
                                                 'ActivityFlag': false,
                                                 'ShopListFlag': false,
@@ -729,9 +1202,10 @@ var AC = function (_React$Component) {
                             null,
                             _react2.default.createElement(
                                 'a',
-                                { className: 'exit_AD', type: 'button' },
-                                _react2.default.createElement('span', { className: 'glyphicon glyphicon-list-alt' }),
-                                '\xA0\xA0\xA0\xA0\u9000\u51FA\u767B\u5F55'
+                                { type: 'button', id: 'dong_love_ywh', href: '#' },
+                                _react2.default.createElement('img', { src: 'img/res/user.jpg', className: 'user-logo' }),
+                                '\xA0\xA0\xA0\xA0',
+                                this.state.admin_name
                             )
                         ),
                         _react2.default.createElement(
@@ -739,10 +1213,9 @@ var AC = function (_React$Component) {
                             null,
                             _react2.default.createElement(
                                 'a',
-                                { type: 'button', id: 'dong_love_ywh' },
-                                _react2.default.createElement('span', {
-                                    className: 'glyphicon glyphicon-heart' }),
-                                '\xA0\xA0\xA0\xA02018.12.12(\u5237\u65B0)'
+                                { href: '#', className: 'exit_AD', type: 'button', onClick: this._outSign.bind(this) },
+                                _react2.default.createElement('span', { className: 'glyphicon glyphicon-list-alt' }),
+                                '\xA0\xA0\xA0\xA0\u9000\u51FA\u767B\u5F55'
                             )
                         )
                     )
@@ -760,7 +1233,7 @@ var AC = function (_React$Component) {
                 _react2.default.createElement(
                     'p',
                     null,
-                    'Copyright \xA9 2018.bore All rights AC\u6821\u8054\u76DF reserved.'
+                    'Copyright \xA9 2018. All rights iwh reserved.'
                 ),
                 _react2.default.createElement(
                     'p',
@@ -774,7 +1247,7 @@ var AC = function (_React$Component) {
     }, {
         key: '_renderTips',
         value: function _renderTips() {
-            var _this4 = this;
+            var _this11 = this;
 
             return _react2.default.createElement(
                 'div',
@@ -782,9 +1255,9 @@ var AC = function (_React$Component) {
                 _react2.default.createElement(
                     'button',
                     { type: 'button', className: 'close', onClick: function onClick() {
-                            var fg = _this4.state.tipsBox;
+                            var fg = _this11.state.tipsBox;
                             fg.flag = false;
-                            _this4.setState({
+                            _this11.setState({
                                 tipsBox: fg
                             });
                         },
@@ -794,13 +1267,40 @@ var AC = function (_React$Component) {
                 this.state.tipsBox.text
             );
         }
+        //渲染加载组件
 
+    }, {
+        key: '_renderLoadBox',
+        value: function _renderLoadBox() {
+            return _react2.default.createElement(
+                'div',
+                { className: 'modal show', id: 'loadBox' },
+                _react2.default.createElement(
+                    'div',
+                    { className: 'modal-dialog' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'modal-content' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-header text-center' },
+                            _react2.default.createElement(
+                                'p',
+                                null,
+                                '\u6B63\u5728\u52A0\u8F7D\u4E2D\xB7\xB7\xB7',
+                                _react2.default.createElement('span', { className: 'fa fa-refresh fa-spin' })
+                            )
+                        )
+                    )
+                )
+            );
+        }
         //渲染警告窗
 
     }, {
         key: '_renderAlert',
         value: function _renderAlert() {
-            var _this5 = this;
+            var _this12 = this;
 
             return _react2.default.createElement(
                 'div',
@@ -831,9 +1331,9 @@ var AC = function (_React$Component) {
                             _react2.default.createElement(
                                 'button',
                                 { className: 'btn btn-danger', onClick: function onClick() {
-                                        var ac = _this5.state._activityC;
+                                        var ac = _this12.state._activityC;
                                         ac._alertFlag = false;
-                                        _this5.setState({ _activityFlag: ac });
+                                        _this12.setState({ _activityFlag: ac });
                                     } },
                                 '\u53D6\u6D88'
                             )
@@ -842,13 +1342,59 @@ var AC = function (_React$Component) {
                 )
             );
         }
+        //渲染删除商户警告
 
+    }, {
+        key: '_renderDeleShopModal',
+        value: function _renderDeleShopModal() {
+            var _this13 = this;
+
+            return _react2.default.createElement(
+                'div',
+                { className: 'modal show' },
+                _react2.default.createElement(
+                    'div',
+                    { className: 'modal-dialog' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'modal-content' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-header text-center' },
+                            _react2.default.createElement(
+                                'p',
+                                null,
+                                '\u786E\u5B9A\u8981\u5220\u9664\u5417\uFF1F'
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-footer' },
+                            _react2.default.createElement(
+                                'button',
+                                { className: 'btn btn-primary', onClick: this.state._shopC._remove.bind(this) },
+                                '\u786E\u5B9A'
+                            ),
+                            _react2.default.createElement(
+                                'button',
+                                { className: 'btn btn-danger', onClick: function onClick() {
+                                        var sp = _this13.state._shopC;
+                                        sp._alertFlag = false;
+                                        _this13.setState({ _shopC: sp });
+                                    } },
+                                '\u53D6\u6D88'
+                            )
+                        )
+                    )
+                )
+            );
+        }
         //渲染添加活动组件
 
     }, {
         key: '_renderAddModal',
         value: function _renderAddModal() {
-            var _this6 = this;
+            var _this14 = this;
 
             return _react2.default.createElement(
                 'div',
@@ -874,6 +1420,44 @@ var AC = function (_React$Component) {
                             _react2.default.createElement(
                                 'form',
                                 { className: 'form', method: 'post', id: 'form_add' },
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: '', className: 'control-label' },
+                                        '\u6D3B\u52A8\u5206\u7C7B\uFF1A'
+                                    ),
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: 'name' },
+                                        '\u9009\u62E9\u5206\u7C7B'
+                                    ),
+                                    _react2.default.createElement(
+                                        'select',
+                                        { className: 'form-control', name: 'add-activity-sort' },
+                                        _react2.default.createElement(
+                                            'option',
+                                            null,
+                                            '\u6E38\u73A9'
+                                        ),
+                                        _react2.default.createElement(
+                                            'option',
+                                            null,
+                                            '\u5B66\u4E60'
+                                        ),
+                                        _react2.default.createElement(
+                                            'option',
+                                            null,
+                                            '\u9A7E\u8003'
+                                        ),
+                                        _react2.default.createElement(
+                                            'option',
+                                            null,
+                                            '\u751F\u6D3B'
+                                        )
+                                    )
+                                ),
                                 _react2.default.createElement(
                                     'div',
                                     { className: 'form-group' },
@@ -908,7 +1492,7 @@ var AC = function (_React$Component) {
                                         'select',
                                         { className: 'form-control', name: 'add-activity-shop' },
                                         Object.keys(this.state.ShopList).map(function (row, idx) {
-                                            var sl = _this6.state.ShopList;
+                                            var sl = _this14.state.ShopList;
                                             return _react2.default.createElement(
                                                 'option',
                                                 { key: idx },
@@ -948,7 +1532,7 @@ var AC = function (_React$Component) {
                                         '\u6D3B\u52A8banner\uFF1A'
                                     ),
                                     _react2.default.createElement('input', { type: 'file', className: 'form-control',
-                                        placeholder: '\u4E0A\u4F20', required: 'required', name: 'add-activity-banner' })
+                                        placeholder: '\u4E0A\u4F20', required: 'required', name: 'add-activity-banner', id: 'banner' })
                                 )
                             )
                         ),
@@ -960,14 +1544,126 @@ var AC = function (_React$Component) {
                                 { className: ' text-center' },
                                 _react2.default.createElement('input', { type: 'button', className: 'btn btn-primary',
                                     onClick: function onClick() {
-                                        _this6.state._activityC._add();
+                                        _this14.state._activityC._add();
                                     }, value: '\u786E\u8BA4' }),
                                 _react2.default.createElement('input', { type: 'button', className: 'btn btn-default',
                                     onClick: function onClick() {
-                                        var fg = _this6.state._activityC;
+                                        var fg = _this14.state._activityC;
                                         fg._addFlag = false;
-                                        _this6.setState({
+                                        _this14.setState({
                                             _activity: fg
+                                        });
+                                    }, value: '\u53D6\u6D88' })
+                            )
+                        )
+                    )
+                )
+            );
+        }
+        //渲染添加商户
+
+    }, {
+        key: '_renderAddShop',
+        value: function _renderAddShop() {
+            var _this15 = this;
+
+            return _react2.default.createElement(
+                'div',
+                { className: 'modal show', id: 'modal-add-shop' },
+                _react2.default.createElement(
+                    'div',
+                    { className: 'modal-dialog' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'modal-content' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-header' },
+                            _react2.default.createElement(
+                                'h4',
+                                null,
+                                '\u6DFB\u52A0\u65B0\u7684\u5546\u6237'
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-body', role: 'form' },
+                            _react2.default.createElement(
+                                'form',
+                                { className: 'form', method: 'post', id: 'form_add_shop' },
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: '', className: 'control-label' },
+                                        '\u5546\u5BB6\u540D\u79F0\uFF1A'
+                                    ),
+                                    _react2.default.createElement('input', { type: 'text', name: 'add-shop-name', className: 'form-control',
+                                        placeholder: '\u5E97\u540D', required: 'required', maxLength: '30' })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: '', className: 'control-label' },
+                                        '\u5546\u5BB6\u7535\u8BDD\uFF1A'
+                                    ),
+                                    _react2.default.createElement('input', { type: 'number', name: 'add-shop-phone', className: 'form-control',
+                                        placeholder: '\u8054\u7CFB\u65B9\u5F0F', required: 'required' })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: 'name' },
+                                        '\u5546\u5BB6\u5730\u5740'
+                                    ),
+                                    _react2.default.createElement('input', { type: 'text', name: 'add-shop-address', className: 'form-control',
+                                        placeholder: '\u8BE6\u7EC6\u5730\u5740', required: 'required' })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: '', className: 'control-label' },
+                                        '\u5546\u5BB6\u7B80\u4ECB\uFF1A'
+                                    ),
+                                    _react2.default.createElement('textarea', { rows: '2', type: 'text', name: 'add-activity-desc', className: 'form-control',
+                                        placeholder: '\u8BF7\u4E0D\u8981\u8D85\u8FC7200\u5B57', required: 'required' })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: '', className: 'control-label' },
+                                        'logo\u4E0A\u4F20\uFF1A'
+                                    ),
+                                    _react2.default.createElement('input', { type: 'file', className: 'form-control',
+                                        placeholder: '\u4E0A\u4F20', required: 'required', name: 'add-shop-logo', id: 'shop-logo' })
+                                )
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-footer' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: ' text-center' },
+                                _react2.default.createElement('input', { type: 'button', className: 'btn btn-primary',
+                                    onClick: function onClick() {
+                                        _this15.state._shopC._submit();
+                                    }, value: '\u786E\u8BA4' }),
+                                _react2.default.createElement('input', { type: 'button', className: 'btn btn-default',
+                                    onClick: function onClick() {
+                                        var fg = _this15.state._shopC;
+                                        fg._addModalFlag = false;
+                                        _this15.setState({
+                                            _shopC: fg
                                         });
                                     }, value: '\u53D6\u6D88' })
                             )
@@ -994,88 +1690,84 @@ var AC = function (_React$Component) {
                 )
             );
         }
-
-        //初始化商家列表
-
-    }, {
-        key: '_initShopList',
-        value: function _initShopList() {
-            var _this7 = this;
-
-            console.log('获取商户列表');
-            _jquery2.default.post('returnData/returnData.php', {
-                getDataKey: 'getShopList'
-            }, function (data, text) {
-                console.log('shop:' + JSON.parse(data));
-
-                _this7.setState({
-                    ShopList: JSON.parse(data)
-
-                });
-            });
-        }
-
-        //初始化用户列表
+        //渲染添加公告
 
     }, {
-        key: '_initUserList',
-        value: function _initUserList() {
-            console.log('获取用户列表');
-        }
+        key: '_renderAddAc',
+        value: function _renderAddAc() {
+            var _this16 = this;
 
-        //初始化推荐活动
-
-    }, {
-        key: '_initIndexActivity',
-        value: function _initIndexActivity() {
-            console.log('获取推荐活动');
-        }
-
-        //初始化平台活动
-
-    }, {
-        key: '_initAcActivity',
-        value: function _initAcActivity() {
-            var _this8 = this;
-
-            console.log('获取AC公告');
-            _jquery2.default.post('returnData/returnData.php', {
-                getDataKey: 'getAcActivity'
-            }, function (data, text) {
-                console.log('ac:' + JSON.parse(data));
-                var rg = _this8.state.renderFlag;
-                data = JSON.parse(data);
-                _this8.setState({
-                    AcActivity: data
-
-                });
-            });
-        }
-
-        //初始化商家活动数据
-
-    }, {
-        key: '_initShopActivity',
-        value: function _initShopActivity() {
-            var _this9 = this;
-
-            _jquery2.default.post('returnData/returnData.php', {
-                getDataKey: 'getShopActivity'
-            }, function (data, text) {
-                if (data === 'error') {
-                    console.warn('发生错误：', text);
-                } else {
-                    data = JSON.parse(data);
-                    console.log(data);
-                }
-                var fg = _this9.state.renderFlag;
-                fg.ActivityFlag = true;
-                _this9.setState({
-                    ShopActivities: data,
-                    renderFlag: fg
-
-                });
-            });
+            return _react2.default.createElement(
+                'div',
+                { className: 'modal show', id: 'modal-add-shop' },
+                _react2.default.createElement(
+                    'div',
+                    { className: 'modal-dialog' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'modal-content' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-header' },
+                            _react2.default.createElement(
+                                'h4',
+                                null,
+                                '\u6DFB\u52A0\u65B0\u7684\u516C\u544A'
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-body', role: 'form' },
+                            _react2.default.createElement(
+                                'form',
+                                { className: 'form', method: 'post', id: 'form_add_ac' },
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: '', className: 'control-label' },
+                                        '\u6D3B\u52A8\u6807\u9898'
+                                    ),
+                                    _react2.default.createElement('input', { type: 'text', name: 'add-ac-title', className: 'form-control',
+                                        placeholder: '\u516C\u544A\u6807\u9898', required: 'required', maxLength: '30' })
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'form-group' },
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: '', className: 'control-label' },
+                                        '\u8D85\u94FE\u63A5'
+                                    ),
+                                    _react2.default.createElement('input', { type: 'text', name: 'add-ac-url', className: 'form-control',
+                                        placeholder: '\u8DF3\u8F6C\u94FE\u63A5', required: 'required' })
+                                )
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'modal-footer' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: ' text-center' },
+                                _react2.default.createElement('input', { type: 'button', className: 'btn btn-primary',
+                                    onClick: function onClick() {
+                                        _this16.state._acC._submit();
+                                    }, value: '\u786E\u8BA4' }),
+                                _react2.default.createElement('input', { type: 'button', className: 'btn btn-default',
+                                    onClick: function onClick() {
+                                        var fg = _this16.state._acC;
+                                        fg._addAcModalFlag = false;
+                                        _this16.setState({
+                                            _acC: fg
+                                        });
+                                    }, value: '\u53D6\u6D88' })
+                            )
+                        )
+                    )
+                )
+            );
         }
     }, {
         key: 'render',
@@ -1083,6 +1775,10 @@ var AC = function (_React$Component) {
             return _react2.default.createElement(
                 'div',
                 null,
+                this.state.loadBox.flag ? this._renderLoadBox() : '',
+                this.state._acC._addAcModalFlag ? this._renderAddAc() : '',
+                this.state._shopC._alertFlag ? this._renderDeleShopModal() : '',
+                this.state._shopC._addModalFlag ? this._renderAddShop() : '',
                 this.state.tipsBox.flag ? this._renderTips() : '',
                 this.state._activityC._addFlag ? this._renderAddModal() : '',
                 this._renderNav(),

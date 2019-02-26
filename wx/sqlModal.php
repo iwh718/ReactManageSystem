@@ -4,7 +4,7 @@ header('Content-Type:text/html;charset=UTF-8');
 /**
 * 
 */
-class sqlModal
+class sqlModal_wx
 {	
 	
 
@@ -37,12 +37,7 @@ class sqlModal
 
 
 	}
-	//比对
-	public function count($sql){
-		$re = $GLOBALS['conn']->query($sql);
-		$re = $re->rowCount();
-		return $re;
-	}
+	
 	//执行请求
 	private function Exec($sql){
 			$res =  $GLOBALS['conn']->exec($sql);
@@ -52,37 +47,17 @@ class sqlModal
 	function getActivity($sql){
 		return $this->query($sql);
 	}
-	//添加活动
-	function addActivity($sql){
-		return $this->Exec($sql);
-	}
+	
 	//获取商户
 	function getShopList($sql){
 		return $this->query($sql);
-	}
-	function addShopList($sql){
-		return $this->Exec($sql);
 	}
 	//获取公告
 	function getAcActivity($sql){
 		return $this->query($sql);
 	}
-	//添加公告
-	function addAcActivity($sql){
-		return $this->Exec($sql);
-	}
-	//移除公告
-	function removeAcActivity($sql){
-		return $this->Exec($sql);
-	}
-	//移除活动
-	function removeActivity($sql){
-		return $this->Exec($sql);
-	}
-	//移除商户
-	function removeShopList($sql){
-			return $this->Exec($sql);
-	}
+	
+	
 
 	function Login($sql){
 		return $this->count($sql);

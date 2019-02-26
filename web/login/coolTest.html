@@ -1,0 +1,341 @@
+<html data-blockbyte-bs-uid="48043">
+<head>
+    <meta charSet="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="/static/weui/1.1.2/weui.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="/static/style/weui.extra.css?v=201802082" media="all">
+    <script type="application/javascript" src="/static/weui/1.1.2/weui.js"></script>
+    <script type="application/javascript">
+        function ajax(options) {
+            /*** 传入方式默认为对象* */
+            options = options || {};
+            /*** 默认为GET请求* */
+            options.type = (options.type || "POST").toUpperCase();
+            /*** 返回值类型默认为json* */
+            options.dataType = options.dataType || 'json';
+            /*** 默认为异步请求* */
+            options.async = options.async || false;
+            /*** 对需要传入的参数的处理* */
+            var params = getParams(options.data);
+            var xhr;
+            /*** 创建一个 ajax请求* W3C标准和IE标准*/
+            if (window.XMLHttpRequest) {
+                /*** W3C标准* */
+                xhr = new XMLHttpRequest();
+            } else {
+                /*** IE标准* @type {ActiveXObject}*/
+                xhr = new ActiveXObject('Microsoft.XMLHTTP')
+            }
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+                    var status = xhr.status;
+                    if (status >= 200 && status < 300) {
+                        options.success && options.success(xhr.responseText, xhr.responseXML);
+                    } else {
+                        options.fail && options.fail(status);
+                    }
+                }
+            };
+            if (options.type == 'GET') {
+                xhr.open("GET", options.url + '?' + params, options.async);
+                xhr.send(null)
+            } else if (options.type == 'POST') {
+                /***打开请求* */
+                xhr.open('POST', options.url, options.async);
+                /*** POST请求设置请求头* */
+                xhr.setRequestHeader('x-requested-with', 'XMLHttpRequest');
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                /*** 发送请求参数*/xhr.send(params);
+            }
+        }
+
+        /*** 对象参数的处理* @param data* @returns {string}*/
+        function getParams(data) {
+            var arr = [];
+            for (var param in data) {
+                arr.push(encodeURIComponent(param) + '=' + encodeURIComponent(data[param]));
+            }
+            console.log(arr);
+            arr.push(('randomNumber=' + Math.random()).replace('.'));
+            console.log(arr);
+            return arr.join('&');
+        }</script>
+    <style type="text/css">.page, body {
+        background-color: #0f9d58;
+    }
+
+    .weui-loadmore_line .weui-loadmore__tips {
+        color: #f8f8f8;
+        background-color: #0f9d58;
+    }
+
+    .page__main {
+        padding: 20px 30px 40px;
+        border: 1px solid #0f9d58;
+        border-radius: 5px;
+        background-color: #f8f8f8;
+        -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, .12);
+        -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, .12);
+        box-shadow: 0 1px 5px rgba(0, 0, 0, .12);
+    }</style>
+    <style className="blockbyte-bs-style" data-name="content">body > div#blockbyte-bs-indicator > div {
+        opacity: 0;
+        pointer-events: none
+    }
+
+    body > iframe#blockbyte-bs-sidebar.blockbyte-bs-visible, body > iframe#blockbyte-bs-overlay.blockbyte-bs-visible {
+        opacity: 1;
+        pointer-events: auto
+    }
+
+    body.blockbyte-bs-noscroll {
+        overflow: hidden !important
+    }
+
+    body > div#blockbyte-bs-indicator > div {
+        position: absolute;
+        transform: translate3d(-40px, 0, 0);
+        top: 0;
+        left: 0;
+        width: 40px !important;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 0 10px 10px 0;
+        transition: opacity 0.3s, transform 0.3s;
+        z-index: 2
+    }
+
+    body > div#blockbyte-bs-indicator > div > span {
+        -webkit-mask: no-repeat center/32px;
+        -webkit-mask-image: url(chrome-extension://jdbnofccmhefkmjbkkdkfiicjkgofkdh/img/icon-bookmark.svg);
+        background-color: #ffffff;
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%
+    }
+
+    body > div#blockbyte-bs-indicator[data-pos='right'] {
+        left: auto;
+        right: 0
+    }
+
+    body > div#blockbyte-bs-indicator[data-pos='right'] > div {
+        transform: translate3d(40px, 0, 0);
+        left: auto;
+        right: 0;
+        border-radius: 10px 0 0 10px
+    }
+
+    body > div#blockbyte-bs-indicator.blockbyte-bs-fullHeight > div {
+        border-radius: 0
+    }
+
+    body > div#blockbyte-bs-indicator.blockbyte-bs-hover > div {
+        transform: translate3d(0, 0, 0);
+        opacity: 1
+    }
+
+    body > div#blockbyte-bs-indicator[data-pos='left'].blockbyte-bs-has-lsb {
+        height: 100% !important;
+        top: 0 !important
+    }
+
+    body > div#blockbyte-bs-indicator[data-pos='left'].blockbyte-bs-has-lsb > div {
+        background: transparent
+    }
+
+    body > div#blockbyte-bs-indicator[data-pos='left'].blockbyte-bs-has-lsb > div > span {
+        -webkit-mask-position-y: 20px
+    }
+
+    body > iframe#blockbyte-bs-sidebar {
+        width: 350px;
+        max-width: none;
+        height: 0;
+        z-index: 2147483646;
+        background-color: rgba(0, 0, 0, 0.6) !important;
+        border: none;
+        display: block !important;
+        transform: translate3d(-350px, 0, 0);
+        transition: width 0s 0.3s, height 0s 0.3s, opacity 0.3s, transform 0.3s
+    }
+
+    body > iframe#blockbyte-bs-sidebar[data-pos='right'] {
+        left: auto;
+        right: 0;
+        transform: translate3d(350px, 0, 0)
+    }
+
+    body > iframe#blockbyte-bs-sidebar.blockbyte-bs-visible {
+        width: calc(100% + 350px);
+        height: 100%;
+        transform: translate3d(0, 0, 0);
+        transition: opacity 0.3s, transform 0.3s
+    }
+
+    body > iframe#blockbyte-bs-sidebar.blockbyte-bs-hideMask {
+        background: none !important
+    }
+
+    body > iframe#blockbyte-bs-sidebar.blockbyte-bs-hideMask:not(.blockbyte-bs-hover) {
+        width: calc(350px + 50px)
+    }
+
+    body > iframe#blockbyte-bs-overlay {
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        z-index: 2147483647;
+        border: none;
+        background: rgba(0, 0, 0, 0.5) !important;
+        transition: opacity 0.3s
+    }
+    </style>
+</head>
+<body data-uid="0" data-request-app="AccountV8" data-request-hash="4637993epma2dh">
+<div class="container" id="container">
+    <div></div>
+    <div class="page__main">
+        <div class="page__hd"><h1 class="page__title">酷安账号登录</h1>
+            <p class="page__desc">新用户请使用手机验证码或第三方登录方式注册</p></div>
+        <div class="page__bd page__bd_spacing">
+            <div class="weui-cells">
+                <div class="weui-cell">
+                    <div class="weui-cell__bd"><input id="loginInput" class="weui-input" type="text"
+                                                      placeholder="用户名、邮箱或手机号"
+                                                      onfocus="document.getElementById('mobileInputTips').style.display='block';">
+                    </div>
+                </div>
+                <div class="weui-cell">
+                    <div class="weui-cell__bd"><input id="passwordInput" class="weui-input" type="password"
+                                                      placeholder="请输入密码" style="ime-mode: disabled;"></div>
+                </div>
+                <div id="captchaGroup" class="weui-cell weui-cell_vcode" style="display: none;">
+                    <div class="weui-cell__bd"><input id="captchaInput" class="weui-input" type="text"
+                                                      placeholder="请输入图形验证码" style="ime-mode: disabled;"></div>
+                    <div class="weui-cell__ft"><img id="captcha" class="weui-vcode-img"
+                                                    src="/auth/showCaptchaImage?1549075590000"
+                                                    onclick="refreshCaptcha();"></div>
+                </div>
+            </div>
+            <div class="weui-cells__tips" id="mobileInputTips" style="display: none">海外手机号需输入区号，如+886-960000000</div>
+            <div class="weui-btn-area"><a class="weui-btn weui-btn_primary" href="javascript:;" onclick="ajaxPost();">登
+                &nbsp;&nbsp; 录</a><a class="weui-btn weui-btn_plain-primary weui-btn_ex-link"
+                                     href="/auth/login?type=mobile">使用手机验证码快捷登录</a></div>
+        </div>
+    </div>
+    <div class="weui-footer page__ft"><a class="weui-footer__link" style="color: #FFFFFF;" href="/auth/findPassword">登录有问题？找回密码</a>
+        <div class="weui-loadmore weui-loadmore_line"><span class="weui-loadmore__tips">&nbsp;&nbsp;&nbsp;社交账号登录&nbsp;&nbsp;&nbsp;</span>
+        </div>
+        <div class="weui-flex" style="margin-top: -10px;">
+            <div class="weui-flex__item"></div>
+            <div class="weui-flex__item"><a href="/auth/loginByOpenId?type=weixin"><img style="width: 48px;height: 48px"
+                                                                                        src=""></a></div>
+            <div class="weui-flex__item"><a href="/auth/loginByOpenId?type=qq"><img style="width: 48px;height: 48px"
+                                                                                    src=""><img
+                    style="width: 48px;height: 48px" src=""></a></div>
+            <div class="weui-flex__item"></div>
+        </div>
+    </div>
+</div>
+<div class="js_dialog" id="dialog" style="opacity: 0; display: none;">
+    <div class="weui-mask"></div>
+    <div class="weui-dialog weui-skin_android">
+        <div class="weui-dialog__hd"><strong class="weui-dialog__title">账号处于待注销状态</strong></div>
+        <div class="weui-dialog__bd">您的账号正处于待注销状态，系统会在你提交申请的24小时后自动为你注销。您可以点击【恢复账号】按钮来取消你的申请。</div>
+        <div class="weui-dialog__ft"><a href="/auth/logout" class="weui-dialog__btn weui-dialog__btn_default">继续注销</a><a
+                href="javascript:;" id="cancelUrl" class="weui-dialog__btn weui-dialog__btn_primary">恢复账号</a></div>
+    </div>
+</div>
+<script>refreshCaptcha();
+
+function ajaxPost() {
+    ajax({
+        url: '/auth/loginByCoolapk',
+        data: {
+            submit: 1,
+            requestHash: '4637993epma2dh',
+            login: document.getElementById('loginInput').value,
+            password: document.getElementById('passwordInput').value,
+            captcha: document.getElementById('captchaInput').value,
+        },
+        success: function (response, xml) {
+            response = JSON.parse(response);
+            if (response.url != null) {
+                window.location.href = response.url;
+            } else if (response.data == 'showMessage') {
+                weui.topTips(response.message, {
+                    duration: 3500, callback: function () {
+                        if (response.forwardUrl != null) {
+                            window.location.href = response.forwardUrl;
+                        }
+                    }
+                });
+            } else {
+                if (response.status == 1) {
+                    window.location.href = response.message;
+                } else if (response.status == -1) {
+                    document.getElementById('captchaGroup').style.display = 'flex';
+                    refreshCaptcha();
+                    console.log(response.message);
+                    if (response.message != null) {
+                        weui.topTips(response.message, 3500);
+                    }
+                } else if (response.status == -999) {
+                    var key = response.message;
+                    document.getElementById('cancelUrl').setAttribute('href', '/auth/closeAccountCancel?key=' + key);
+                    showDialog();
+                } else {
+                    if (response.status == 0) {
+                        document.getElementById('captchaGroup').style.display = 'flex';
+                        refreshCaptcha();
+                    }
+                    weui.topTips(response.message, 3500);
+                }
+            }
+        },
+        fail: function (status) {
+            console.log('状态码为' + status);
+        }
+    });
+}
+
+function refreshCaptcha() {
+    document.getElementById('captcha').src = '/auth/showCaptchaImage?' + Date.parse(new Date());
+}
+
+function showDialog() {
+    var $andirodDialog = document.getElementById('dialog');
+    $andirodDialog.style.opacity = 1;
+    $andirodDialog.style.display = 'block';
+}</script>
+<script type="text/javascript"
+        src="//astyle-src.alicdn.com/app/searchweb/products/zhaohuoshenqi/lib/jquery.js"></script>
+<iframe id="blockbyte-bs-sidebar" class="notranslate" data-pos="left"></iframe>
+<div id="blockbyte-bs-indicator" class="blockbyte-bs-fullHeight blockbyte-bs-visible" data-pos="left"
+     style="width: 21px; height: 100%; top: 0%;">
+    <div><span></span></div>
+</div>
+<div id="translate-man-app" class="content-3WfBL_0" style="background-color: rgb(255, 255, 255); display: none;">
+    <div data-v-2868eb04="" class="outputBox-qe9A4_0">
+        <div data-v-2868eb04="" class="outputBox-3oESn_0"><span data-v-2868eb04="" class="outputBox-13Ovx_0"></span>
+            <!----></div>
+        <div data-v-2868eb04="" class="outputBox-1GLb__0"><!---->
+            <div data-v-2868eb04="" class="outputBox-onVZH_0"><img
+                    src="chrome-extension://fapgabkkfcaejckbfmfcdgnfefbmlion/static/sound.svg" class="icon-tprjJ_0">
+            </div>
+        </div>
+        <div data-v-2868eb04="" class="outputBox-2sJgr_0"></div>
+        <div data-v-2868eb04="" class="outputBox-17RAm_0" style="display: none;"><!----><!----><!---->
+            <div data-v-2868eb04=""></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript"
+        src="//astyle-src.alicdn.com/app/searchweb/products/zhaohuoshenqi/entry/js/entry.js"></script>
+</body>
+</html>

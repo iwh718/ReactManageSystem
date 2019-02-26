@@ -1,6 +1,8 @@
 .footer{
     text-align:center;
 
+    color: #ffffff;
+
 }
 .banner{
     height: 50px;
@@ -9,3 +11,43 @@
     -moz-border-radius: 5px;
     border-radius: 5px;
 }
+.navbar-nav li span{
+    cursor: pointer;
+}
+.bg{
+    top: 0;
+    bottom:0;
+    position:fixed;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    background: rgba(3, 7, 4, 0.78);
+    height: 100%;
+    width: 100%;
+    left: 0;
+    right:0;
+    z-index: 1;
+}
+.app{
+    overflow: auto;
+    overflow-y:scroll;
+}
+#app{
+    z-index: 999;
+}
+.user-logo{
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    height: 25px;
+    width: 25px;
+}
+.shop-logo{
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+}
+
+
+

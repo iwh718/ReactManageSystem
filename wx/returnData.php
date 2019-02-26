@@ -1,27 +1,29 @@
-<?php 
-//error_reporting(0);
-session_start();
-date_default_timezone_set('Asia/Shanghai');//'Asia/Shanghai'   亚洲/上海
-if (!isset($_SESSION['key'])||$_SESSION['key']!=true){
- 
-    echo "<script>";
-    echo "alert('你没有访问权限！！')";
-    echo "</script>";
-    die();
-  
 
-}
-?>
 <?php
 
-require '../sqlModal/sqlModal.php';
+require './sqlModal.php';
 
-$modal = new sqlModal();
+$modal = new sqlModal_wx();
 
 if(isset($_REQUEST['getDataKey'])){
 		switch ($_REQUEST['getDataKey']) {
 			case 'getShopActivity':
-			$sql = 'SELECT *FROM activity';
+
+			$actsort = $_REQUEST['acsort'];
+			switch ($actsort) {
+				case '游玩':
+				case '学习':				
+				case '驾考':	
+				case '生活':
+					$sql = "SELECT *FROM activity WHERE actsort = '$actsort' ORDER BY Id DESC";		
+					break;
+				
+				default:
+					$sql = 'SELECT *FROM activity ORDER BY Id DESC';
+			
+					break;
+			}
+			
 			$arr = $modal->getActivity($sql);
 			echo json_encode($arr,true);
 		break;
@@ -29,22 +31,17 @@ if(isset($_REQUEST['getDataKey'])){
 		# code...
 		break;
 	case 'getAcActivity':
-		$sql = 'SELECT *FROM acactivity';
+		$sql = 'SELECT *FROM acactivity ORDER BY  Id DESC limit 1';
 			$arr = $modal->getAcActivity($sql);
 			echo json_encode($arr,true);
 		break;
-	case 'getUserList':
-		# code...
-		break;
+	
 	case 'getShopList':
 			$sql = 'SELECT *FROM shop';
 			$arr = $modal->getShopList($sql);
 			echo json_encode($arr,true);
 		break;
-	case 'getCookie':
-		
-		echo $_SESSION['user_name'];
-		break;	
+	
 	
 	default:
 		echo "error";
